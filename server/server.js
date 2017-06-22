@@ -22,7 +22,7 @@ app.post('/todos',(req,res)=>{
   }, (err)=>{
 res.status(400).send(err);
   });
-  console.log(req.body);
+  //console.log(req.body);
 });
 
 
@@ -37,28 +37,23 @@ app.get('/todos',(req,res)=>{
 
 app.get('/todos/:id',(req,res)=>{
   var id = req.params.id;
-
+  //console.log(id);
   if (!ObjectID.isValid(id)) {
-   console.log('ID not valid');
+   //console.log('ID not valid');
    res.status(404).send();
   }
   else {
-    user.findById(id).then((user) => {
-      if (!user) {
-         console.log('Unable to find user');
+    Todo.findById(id).then((todo) => {
+      if (!todo) {
+         //console.log('Unable to find user');
          return res.status(404).send();
       }
-      res.send({user});
-      console.log(JSON.stringify(user, undefined, 2));
-    }, (e) => {
-      console.log(e);
-      res.status(404).send();
+    //  console.log(JSON.stringify(todo, undefined, 2));
+      res.send({todo});
     }).catch((e)=>{
       res.status(400).send();
     });
-  }
-
-})
+  }});
 
 app.listen(3000,()=>{
   console.log('server started on port 3000');
