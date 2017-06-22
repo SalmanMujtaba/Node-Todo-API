@@ -39,7 +39,6 @@ describe('POST /todos', () => {
         }
 
         Todo.find({text}).then((todos) => {
-      //    console.log('length'+todos.length);
           expect(todos.length).toBe(1);
           expect(todos[0].text).toBe(text);
           done();
@@ -90,9 +89,7 @@ describe('GET /todos/:id',()=>{
     });
 //we're passing a valid object id which is not present in the database
     var obj = new ObjectID().toHexString();
-    console.log(typeof(obj));
-    console.log(obj);
-    it('should return 404 if todo not found',(done) =>{
+      it('should return 404 if todo not found',(done) =>{
       request(app)
         .get('/todos/'+obj)
         .expect(404)
@@ -106,4 +103,43 @@ describe('GET /todos/:id',()=>{
         .end(done);
     });
 
+});
+
+describe('DELETE /todos',()=>{
+  it('it should remove a Todo', (done) =>{
+    var obj = todos[0]._id.toHexString();
+    request(app)
+      .delete('/todos/'+obj)
+      .expect(200)
+      .expect((res)=>{
+        expect(res.body.todo._id).toBe(obj);
+      })
+      .end((err,res)=>{
+        if(err){
+          return done(err);
+        }
+
+        Todo.findById(obj).then((todo) => {
+          //just to show that that no record is present in the database
+          expect(todo).toNotExist();
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+
+  it('should return 404 if todo is not found',(done) =>{
+    var obj = new ObjectID().toHexString();
+    request(app)
+      .delete('/todos/'+obj)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 if object is invalid',(done) =>{
+    var obj = todos[0]._id.toHexString();
+    request(app)
+      .delete('/todos/123')
+      .expect(404)
+      .end(done);
+  });
 });

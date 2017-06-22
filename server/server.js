@@ -57,8 +57,6 @@ app.get('/todos/:id',(req,res)=>{
   app.delete('/todos/:id',(req,res)=>{
     var id = req.params.id;
     if (!ObjectID.isValid(id)) {
-     console.log('404 error 1');
-
      res.status(404).send();
     }
     else {
