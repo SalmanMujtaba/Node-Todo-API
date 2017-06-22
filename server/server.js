@@ -1,5 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 
 var {mongoose} = require('./db/mongoose');
@@ -34,10 +35,33 @@ app.get('/todos',(req,res)=>{
   })
 });
 
+app.get('/todos/:id',(req,res)=>{
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+   console.log('ID not valid');
+   res.status(404).send();
+  }
+  else {
+    user.findById(id).then((user) => {
+      if (!user) {
+         console.log('Unable to find user');
+         return res.status(404).send();
+      }
+      res.send({user});
+      console.log(JSON.stringify(user, undefined, 2));
+    }, (e) => {
+      console.log(e);
+      res.status(404).send();
+    }).catch((e)=>{
+      res.status(400).send();
+    });
+  }
+
+})
+
 app.listen(3000,()=>{
   console.log('server started on port 3000');
 });
-
-
 
 module.exports = {app};
