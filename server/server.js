@@ -26,7 +26,6 @@ app.post('/todos',(req,res)=>{
   }, (err)=>{
 res.status(400).send(err);
   });
-  //console.log(req.body);
 });
 
 
@@ -41,23 +40,37 @@ app.get('/todos',(req,res)=>{
 
 app.get('/todos/:id',(req,res)=>{
   var id = req.params.id;
-  //console.log(id);
   if (!ObjectID.isValid(id)) {
-   //console.log('ID not valid');
    res.status(404).send();
   }
   else {
     Todo.findById(id).then((todo) => {
       if (!todo) {
-         //console.log('Unable to find user');
          return res.status(404).send();
       }
-    //  console.log(JSON.stringify(todo, undefined, 2));
       res.send({todo});
     }).catch((e)=>{
       res.status(400).send();
     });
   }});
+
+  app.delete('/todos/:id',(req,res)=>{
+    var id = req.params.id;
+    if (!ObjectID.isValid(id)) {
+     console.log('404 error 1');
+
+     res.status(404).send();
+    }
+    else {
+      Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo) {
+           return res.status(404).send();
+        }
+        res.status(200).send({todo});
+      }).catch((e)=>{
+        res.status(400).send();
+      });
+    }});
 
 app.listen(port,()=>{
   console.log('server started on port'+port);
