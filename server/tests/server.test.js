@@ -9,7 +9,6 @@ const {Todo} = require('./../models/todo');
 const todos = [{
   _id: new ObjectID(),
   text: 'First'
-  // completed: false
 },{
   _id: new ObjectID(),
   text: 'Seconf',
@@ -168,7 +167,7 @@ describe('PATCH /todos/:id',()=>{
     it('should complete completedAt when todo is not completed', (done)=>{
 
       var id = todos[1]._id.toHexString();
-      var sampleText = 'abc2';
+      var sampleText = 'secondsampletext';
       request(app)
         .patch('/todos/'+id)
         .send({text: sampleText, completed: false })
