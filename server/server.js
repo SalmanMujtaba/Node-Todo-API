@@ -9,7 +9,7 @@ var {mongoose} = require('./db/mongoose');
 
 var{Todo} = require('./models/todo');
 
-var{user} = require('./models/user');
+var{User} = require('./models/user');
 
 var app = express();
 
@@ -57,7 +57,6 @@ app.get('/todos/:id',(req,res)=>{
   }});
 
   app.delete('/todos/:id',(req,res)=>{
-    var id = req.params.id;
     if (!ObjectID.isValid(id)) {
      res.status(404).send();
     }
@@ -73,6 +72,7 @@ app.get('/todos/:id',(req,res)=>{
     }});
 
     app.patch('/todos/:id', (req, res) => {
+      var id = req.params.id;
     var id = req.params.id;
     var body = _.pick(req.body, ['text', 'completed']);
 
@@ -95,6 +95,22 @@ app.get('/todos/:id',(req,res)=>{
       res.send({todo});
     }).catch((e) => {
       res.status(400).send();
+    })
+  });
+
+  //user database related
+  app.post('/user', (req, res) => {
+    var body = _.pick(req.body, ['email', 'password']);
+    var user = new User(body);
+
+    user.save().then(() => {
+      return user.generateAuthToken();
+    }).then((token) => {
+      //x-auth for custom header to store jwt 
+      res.header('x-auth', token).send(user);
+    }).catch((e) => {
+      console.log(e);
+      res.status(400).send(e);
     })
   });
 
