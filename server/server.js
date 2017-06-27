@@ -11,6 +11,8 @@ var{Todo} = require('./models/todo');
 
 var{User} = require('./models/user');
 
+var {authenticate} = require('./middleware/auth');
+
 var app = express();
 
 const port = process.env.PORT;
@@ -106,12 +108,16 @@ app.get('/todos/:id',(req,res)=>{
     user.save().then(() => {
       return user.generateAuthToken();
     }).then((token) => {
-      //x-auth for custom header to store jwt 
+      //x-auth for custom header to store jwt
       res.header('x-auth', token).send(user);
     }).catch((e) => {
       console.log(e);
       res.status(400).send(e);
     })
+  });
+
+  app.get('/user/me', authenticate,(req,res) =>{
+    res.send(req.user);
   });
 
 app.listen(port,()=>{

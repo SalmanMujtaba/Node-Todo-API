@@ -45,7 +45,7 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
-//instance method (custom)
+//instance method (custom), applicable for one user
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
@@ -58,7 +58,23 @@ UserSchema.methods.generateAuthToken = function () {
     return token;
   });
 };
+//model method, applicable for all the users
+UserSchema.statics.findByToken = function(token) {
+  var User = this;
+  var decoded;
 
+  try {
+    decoded = jwt.verify(token,'abc123');
+  } catch(e){
+    return Promise.reject();
+  }
+
+  return User.findOne({
+    '_id' : decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
+};
 var User = mongoose.model('User', UserSchema);
 
   module.exports = {User};
