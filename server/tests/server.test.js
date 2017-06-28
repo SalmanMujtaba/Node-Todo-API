@@ -291,3 +291,22 @@ describe('PATCH /todos/:id',()=>{
         });
     });
 });
+
+describe('DELETE /user/me/login',()=>{
+  it('should remove auth token on logout', (done) =>{
+    var token = users[0].tokens[0].token;
+    request(app)
+      .delete('/user/me/token')
+      .set('x-auth', token)
+      .expect(200)
+      .end((err,res)=>{
+        if(err){
+          return done(err);
+        }
+        User.findById(users[0]._id).then((user)=>{
+          expect(user.tokens.length).toBe(0);
+          done();
+        }).catch((e)=>done(e));
+      });
+    });
+});
