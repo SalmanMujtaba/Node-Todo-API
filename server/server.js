@@ -11,7 +11,6 @@ const  app = express();
 const port = process.env.PORT;
 
 
-
 app.use(bodyParser.json());
 
 app.post('/todos',(req,res)=>{
@@ -21,7 +20,7 @@ app.post('/todos',(req,res)=>{
   todo.save().then((doc)=>{
     res.send(doc);
   }, (err)=>{
-res.status(400).send(err);
+    res.status(400).send(err);
   });
 });
 
@@ -38,12 +37,12 @@ app.get('/todos',(req,res)=>{
 app.get('/todos/:id',(req,res)=>{
   var id = req.params.id;
   if (!ObjectID.isValid(id)) {
-   res.status(404).send();
+    res.status(404).send();
   }
   else {
     Todo.findById(id).then((todo) => {
       if (!todo) {
-         return res.status(404).send();
+        return res.status(404).send();
       }
       res.send({todo});
     }).catch((e)=>{
@@ -51,14 +50,15 @@ app.get('/todos/:id',(req,res)=>{
     });
   }});
 
-  app.delete('/todos/:id',(req,res)=>{
+app.delete('/todos/:id',(req,res)=>{
+  var id = req.params.id;
     if (!ObjectID.isValid(id)) {
-     res.status(404).send();
+      res.status(404).send();
     }
     else {
       Todo.findByIdAndRemove(id).then((todo) => {
         if (!todo) {
-           return res.status(404).send();
+          return res.status(404).send();
         }
         res.status(200).send({todo});
       }).catch((e)=>{
@@ -66,55 +66,66 @@ app.get('/todos/:id',(req,res)=>{
       });
     }});
 
-    app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', (req, res) => {
       var id = req.params.id;
-    var id = req.params.id;
-    var body = _.pick(req.body, ['text', 'completed']);
+      var id = req.params.id;
+      var body = _.pick(req.body, ['text', 'completed']);
 
-    if (!ObjectID.isValid(id)) {
-      return res.status(404).send();
-    }
-
-    if (_.isBoolean(body.completed) && body.completed) {
-      body.completedAt = new Date().getTime();
-    } else {
-      body.completed = false;
-      body.completedAt = null;
-    }
-
-    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
-      if (!todo) {
+      if (!ObjectID.isValid(id)) {
         return res.status(404).send();
       }
 
-      res.send({todo});
-    }).catch((e) => {
-      res.status(400).send();
-    })
-  });
+      if (_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = new Date().getTime();
+      } else {
+        body.completed = false;
+        body.completedAt = null;
+      }
 
-  //user database related
-  app.post('/user', (req, res) => {
-    var body = _.pick(req.body, ['email', 'password']);
-    var user = new User(body);
+      Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        if (!todo) {
+          return res.status(404).send();
+        }
 
-    user.save().then(() => {
-      return user.generateAuthToken();
-    }).then((token) => {
-      //x-auth for custom header to store jwt
-      res.header('x-auth', token).send(user);
-    }).catch((e) => {
-      console.log(e);
-      res.status(400).send(e);
-    })
-  });
+        res.send({todo});
+      }).catch((e) => {
+        res.status(400).send();
+      })
+    });
 
-  app.get('/user/me', authenticate,(req,res) =>{
-    res.send(req.user);
-  });
+    //user database related
+app.post('/user', (req, res) => {
+      var body = _.pick(req.body, ['email', 'password']);
+      var user = new User(body);
+
+      user.save().then(() => {
+        return user.generateAuthToken();
+      }).then((token) => {
+        //x-auth for custom header to store jwt
+        res.header('x-auth', token).send(user);
+      }).catch((e) => {
+        res.status(400).send(e);
+      });
+    });
+
+app.get('/user/me', authenticate,(req,res) =>{
+      res.send(req.user);
+    });
+
+app.post('/user/login', (req, res) => {
+      var body = _.pick(req.body, ['email', 'password']);
+
+      User.findByCredentials(body.email, body.password).then((user) => {
+        return user.generateAuthToken().then((token) => {
+          res.header('x-auth', token).send(user);
+        });
+      }).catch((e) => {
+        res.status(400).send();
+      });
+    });
 
 app.listen(port,()=>{
-  console.log('server started on port'+port);
-});
+      console.log('server started on port'+port);
+    });
 
-module.exports = {app};
+    module.exports = {app};
