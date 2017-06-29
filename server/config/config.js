@@ -1,7 +1,6 @@
 var env = process.env.NODE_ENV || 'development';
 console.log('environment:'+env);
-
-if(env === 'development' || env === 'test' || env ==='production')
+if(env === 'development' || env === 'test')
 {
   var config = require('./config.json');
   var envConfig = config[env];
@@ -10,6 +9,7 @@ if(env === 'development' || env === 'test' || env ==='production')
     process.env[key] = envConfig[key];
   });
 }
+
 // if(env==='development'){
 //   process.env.PORT = 3000;
 //   process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
